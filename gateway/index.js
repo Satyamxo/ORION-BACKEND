@@ -6,12 +6,6 @@ dotenv.config()
 
 const app = express()
 
-// Debug middleware
-app.use((req, res, next) => {
-  console.log("Incoming request:", req.method, req.url)
-  next()
-})
-
 // Health check
 app.get("/", (req, res) => {
   res.send("Gateway working 🚀")
@@ -23,12 +17,7 @@ app.get("/", (req, res) => {
 app.use("/auth", createProxyMiddleware({
   target: process.env.AUTH_URL,
   changeOrigin: true,
-  secure: false, // 🔥 IMPORTANT FIX
-  pathRewrite: { "^/auth": "/api/auth" },
-  onError: (err, req, res) => {
-    console.error("Auth proxy error:", err.message)
-    res.status(500).send("Auth service error")
-  }
+  pathRewrite: { "^/auth": "/api/auth" }
 }))
 
 /**
@@ -37,27 +26,17 @@ app.use("/auth", createProxyMiddleware({
 app.use("/user", createProxyMiddleware({
   target: process.env.USER_URL,
   changeOrigin: true,
-  secure: false,
-  pathRewrite: { "^/user": "/api/user" },
-  onError: (err, req, res) => {
-    console.error("User proxy error:", err.message)
-    res.status(500).send("User service error")
-  }
+  pathRewrite: { "^/user": "/api/user" }
 }))
 
 /**
- * MESSAGING SERVICE
+ * MESSAGING SERVICE (Socket + APIs)
  */
 app.use("/chat", createProxyMiddleware({
   target: process.env.CHAT_URL,
   changeOrigin: true,
-  secure: false,
-  ws: true,
-  pathRewrite: { "^/chat": "" },
-  onError: (err, req, res) => {
-    console.error("Chat proxy error:", err.message)
-    res.status(500).send("Chat service error")
-  }
+  ws: true, // IMPORTANT for socket
+  pathRewrite: { "^/chat": "" }
 }))
 
 /**
@@ -66,12 +45,7 @@ app.use("/chat", createProxyMiddleware({
 app.use("/events", createProxyMiddleware({
   target: process.env.EVENTS_URL,
   changeOrigin: true,
-  secure: false,
-  pathRewrite: { "^/events": "" },
-  onError: (err, req, res) => {
-    console.error("Events proxy error:", err.message)
-    res.status(500).send("Events service error")
-  }
+  pathRewrite: { "^/events": "" }
 }))
 
 /**
@@ -80,15 +54,10 @@ app.use("/events", createProxyMiddleware({
 app.use("/media", createProxyMiddleware({
   target: process.env.MEDIA_URL,
   changeOrigin: true,
-  secure: false,
-  pathRewrite: { "^/media": "" },
-  onError: (err, req, res) => {
-    console.error("Media proxy error:", err.message)
-    res.status(500).send("Media service error")
-  }
+  pathRewrite: { "^/media": "" }
 }))
 
-// PORT
+// PORT (Render compatible)
 const PORT = process.env.PORT || 5000
 
 app.listen(PORT, () => {
