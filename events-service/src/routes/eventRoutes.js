@@ -20,11 +20,7 @@ router.post("/", authMiddleware, createEvent);
 router.get("/", authMiddleware, getAllEvents);
 // router.get("/:id/responses", authMiddleware, getEventResponses);
 router.get("/:id", authMiddleware, getEventById);
-/**
- * @route   POST /api/events/:id/respond
- * @desc    Respond to an event
- * @access  Private
- */
+
 router.post("/:id/respond", authMiddleware, respondToEvent);
 
 module.exports = router;

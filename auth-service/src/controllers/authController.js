@@ -3,11 +3,11 @@ const crypto = require("crypto");
 const User = require("../models/User");
 const { generateToken } = require("../config/jwt");
 const { mailTransporter } = require("../config/mail");
+import { Resend } from "resend";
 require("dotenv").config();
 
-/* =========================
-   FORGOT PASSWORD
-========================= */
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -16,22 +16,21 @@ const forgotPassword = async (req, res) => {
     if (!user)
       return res.status(404).json({ message: "User not found" });
 
-    // generate raw token
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // store hashed token
     user.resetPasswordToken = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
 
-    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 min
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
 
     await user.save();
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    await mailTransporter.sendMail({
+    await resend.emails.send({
+      from: "onboarding@resend.dev",
       to: user.email,
       subject: "Reset your password",
       html: `
@@ -47,7 +46,6 @@ const forgotPassword = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 /* =========================
    RESET PASSWORD
 ========================= */
