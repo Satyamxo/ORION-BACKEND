@@ -1,33 +1,40 @@
 import express from "express"
 import { createProxyMiddleware } from "http-proxy-middleware"
 import dotenv from "dotenv"
-import cors from "cors";
+import cors from "cors"
+
 dotenv.config()
 
 const app = express()
+
+// ✅ CORS
 app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
 }))
-// Debug middleware
+
+// ✅ Debug
 app.use((req, res, next) => {
   console.log("Incoming request:", req.method, req.url)
   next()
 })
 
-// Health check
+// ✅ Health check
 app.get("/", (req, res) => {
   res.send("Gateway working 🚀")
 })
 
 /**
- * AUTH SERVICE
+ * 🔐 AUTH SERVICE
+ * Frontend → /api/auth → Backend → /api/auth
  */
-app.use("/auth", createProxyMiddleware({
+app.use("/api/auth", createProxyMiddleware({
   target: process.env.AUTH_URL,
   changeOrigin: true,
-  secure: false, // 🔥 IMPORTANT FIX
-  pathRewrite: { "^/auth": "/api/auth" },
+  secure: false,
+  pathRewrite: {
+    "^/api/auth": "/api/auth"
+  },
   onError: (err, req, res) => {
     console.error("Auth proxy error:", err.message)
     res.status(500).send("Auth service error")
@@ -35,13 +42,15 @@ app.use("/auth", createProxyMiddleware({
 }))
 
 /**
- * USER SERVICE
+ * 👤 USER SERVICE
  */
-app.use("/user", createProxyMiddleware({
+app.use("/api/users", createProxyMiddleware({
   target: process.env.USER_URL,
   changeOrigin: true,
   secure: false,
-  pathRewrite: { "^/user": "/api/user" },
+  pathRewrite: {
+    "^/api/users": "/api/users"
+  },
   onError: (err, req, res) => {
     console.error("User proxy error:", err.message)
     res.status(500).send("User service error")
@@ -49,28 +58,32 @@ app.use("/user", createProxyMiddleware({
 }))
 
 /**
- * MESSAGING SERVICE
+ * 💬 MESSAGE SERVICE
  */
-app.use("/chat", createProxyMiddleware({
+app.use("/api/messages", createProxyMiddleware({
   target: process.env.CHAT_URL,
   changeOrigin: true,
   secure: false,
   ws: true,
-  pathRewrite: { "^/chat": "" },
+  pathRewrite: {
+    "^/api/messages": "/api/messages"
+  },
   onError: (err, req, res) => {
-    console.error("Chat proxy error:", err.message)
-    res.status(500).send("Chat service error")
+    console.error("Message proxy error:", err.message)
+    res.status(500).send("Message service error")
   }
 }))
 
 /**
- * EVENTS SERVICE
+ * 📅 EVENTS SERVICE
  */
-app.use("/events", createProxyMiddleware({
+app.use("/api/events", createProxyMiddleware({
   target: process.env.EVENTS_URL,
   changeOrigin: true,
   secure: false,
-  pathRewrite: { "^/events": "" },
+  pathRewrite: {
+    "^/api/events": "/api/events"
+  },
   onError: (err, req, res) => {
     console.error("Events proxy error:", err.message)
     res.status(500).send("Events service error")
@@ -78,20 +91,22 @@ app.use("/events", createProxyMiddleware({
 }))
 
 /**
- * MEDIA SERVICE
+ * 🖼 MEDIA SERVICE
  */
-app.use("/media", createProxyMiddleware({
+app.use("/api/media", createProxyMiddleware({
   target: process.env.MEDIA_URL,
   changeOrigin: true,
   secure: false,
-  pathRewrite: { "^/media": "" },
+  pathRewrite: {
+    "^/api/media": "/api/media"
+  },
   onError: (err, req, res) => {
     console.error("Media proxy error:", err.message)
     res.status(500).send("Media service error")
   }
 }))
 
-// PORT
+// ✅ PORT
 const PORT = process.env.PORT || 5000
 
 app.listen(PORT, () => {
