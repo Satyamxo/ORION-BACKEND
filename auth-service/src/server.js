@@ -1,16 +1,4 @@
-// require("dotenv").config();
 
-// const app = require("./app");
-// const connectDB = require("./config/db");
-
-// const PORT = process.env.PORT || 4001;
-
-// // Connect DB first, then start server
-// connectDB().then(() => {
-//   app.listen(PORT, () => {
-//     console.log(`Auth-service running on port ${PORT}`);
-//   });
-// });
 require("dotenv").config();
 
 

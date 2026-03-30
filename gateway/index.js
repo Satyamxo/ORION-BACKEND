@@ -1,11 +1,14 @@
 import express from "express"
 import { createProxyMiddleware } from "http-proxy-middleware"
 import dotenv from "dotenv"
-
+import cors from "cors";
 dotenv.config()
 
 const app = express()
-
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}))
 // Debug middleware
 app.use((req, res, next) => {
   console.log("Incoming request:", req.method, req.url)

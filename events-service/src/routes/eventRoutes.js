@@ -10,11 +10,6 @@ const {
 
 const authMiddleware = require("../middleware/authMiddleware");
 
-/**
- * @route   POST /api/events
- * @desc    Create new event (announcement)
- * @access  Private
- */
 router.post("/", authMiddleware, createEvent);
 
 /**
