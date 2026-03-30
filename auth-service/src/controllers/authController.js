@@ -30,7 +30,7 @@ const forgotPassword = async (req, res) => {
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "emailfromcollege348@gmail.com",
       to: user.email,
       subject: "Reset your password",
       html: `
