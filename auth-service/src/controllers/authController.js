@@ -5,6 +5,9 @@ const { generateToken } = require("../config/jwt");
 const { mailTransporter } = require("../config/mail");
 require("dotenv").config();
 
+/* =========================
+   FORGOT PASSWORD
+========================= */
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
